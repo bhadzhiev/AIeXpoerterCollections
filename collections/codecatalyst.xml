@@ -14,579 +14,6 @@
     <templates>
         <template>
             <metadata>
-                <name>pr-check</name>
-                <description>Check and summarize open pull requests status</description>
-                <created_at>2025-07-20T18:30:42.407614</created_at>
-                <updated_at>2025-07-21T13:59:18.632623</updated_at>
-                <placeholder_generators>
-                    <placeholder_generator language="python"><![CDATA[
-# Simple test to verify basic functionality
-def get_repository_info():
-    try:
-        result = subprocess.run(["git", "remote", "get-url", "origin"], capture_output=True, text=True)
-        if result.returncode == 0:
-            return f"Repository: {result.stdout.strip()}"
-        else:
-            return "Repository: No git repository found"
-    except Exception:
-        return "Repository: No git repository found"
-
-def get_git_branch_status():
-    try:
-        result = subprocess.run(["git", "status", "--porcelain", "-b"], capture_output=True, text=True)
-        if result.returncode == 0:
-            return f"Git Status:\n{result.stdout.strip()}"
-        else:
-            return "Git Status: Git status unavailable"
-    except Exception:
-        return "Git Status: Git status unavailable"
-
-def get_codecatalyst_info():
-    return "CodeCatalyst: Authentication token placeholder - replace with actual PAT"
-
-def get_pr_summary():
-    return "Pull Requests: Template configured successfully - requires valid CodeCatalyst token to fetch actual data"
-
-# Generate placeholders for template
-placeholders = {
-    "repository_info": get_repository_info(),
-    "branch_status": get_git_branch_status(), 
-    "open_prs": get_codecatalyst_info(),
-    "pr_details": get_pr_summary()
-}
-      ]]></placeholder_generator>
-                </placeholder_generators>
-            </metadata>
-            <content><![CDATA[Analyze and summarize the current open pull requests:
-
-**Repository Information:**
-{repository_info}
-
-**Current Branch Status:**
-{branch_status}
-
-**Open Pull Requests:**
-{open_prs}
-
-**PR Details:**
-{pr_details}
-
-Please provide:
-1. Summary of open PRs (count, status, priority)
-2. PRs ready for review vs drafts
-3. Any potential conflicts or blockers
-4. Recommended next actions
-
-Format the response clearly with sections and bullet points.]]></content>
-        </template>
-        <template>
-            <metadata>
-                <name>author-info</name>
-                <description>Comprehensive per-author analysis and metrics across all Git contributors</description>
-                <created_at>2025-07-21T01:15:00.000000</created_at>
-                <updated_at>2025-07-21T13:59:18.632881</updated_at>
-                <placeholder_generators>
-                    <placeholder_generator language="bash"><![CDATA[
-# Working author analysis with real git data
-echo "repo_info=Repository: $(basename $(pwd))"
-
-# Basic git info
-if git status >/dev/null 2>&1; then
-    echo "author_csv_data=Author,Commits,Files"
-    
-    # Get primary author info
-    author=$(git log -1 --pretty=format:'%an' 2>/dev/null || echo "Unknown")
-    total_commits=$(git rev-list --all --count 2>/dev/null || echo "0")
-    total_files=$(git ls-files 2>/dev/null | wc -l | tr -d ' ')
-    
-    echo "author_detailed_metrics=\"$author\",$total_commits,$total_files"
-    echo "recent_commit_details=$(git log -3 --oneline 2>/dev/null | head -3 | tr '\n' '; ' || echo 'No commits')"
-    echo "file_change_history=$(git diff --name-only HEAD~1 2>/dev/null | head -5 | tr '\n' ', ' || echo 'No recent changes')"
-    echo "file_modifications=Total tracked files: $total_files"
-    echo "recent_file_changes=$(git show --name-only --pretty=format: HEAD 2>/dev/null | head -3 | tr '\n' ', ' || echo 'No recent files')"
-    echo "code_evolution=Repository has $total_commits total commits"
-    echo "commit_timeline=Last 7 days: $(git log --since='7 days ago' --oneline 2>/dev/null | wc -l | tr -d ' ') commits"
-    echo "top_contributors=$author (primary contributor with $total_commits commits)"
-    echo "collaboration_patterns=Single author development pattern"
-    echo "author_activity_recent=Most recent contributor: $author"
-    echo "author_tenure=Repository started: $(git log --reverse --oneline 2>/dev/null | head -1 | cut -c1-7 || echo 'Unknown')"
-    echo "productivity_metrics=Average activity: $total_commits commits across repository lifetime"
-    echo "author_specializations=Primary language: $(git ls-files 2>/dev/null | grep '\.' | sed 's/.*\.//' | sort | uniq -c | sort -nr | head -1 | awk '{print $2}' || echo 'mixed')"
-    echo "change_hotspots=Most active area: $(git ls-files 2>/dev/null | head -1 | sed 's|/.*||' || echo 'root')"
-    echo "per_author_commits=Recent work by $author (last 5 commits):"
-    echo "author_commit_details=$(git log --author="$author" -5 --oneline 2>/dev/null | tr '\n' '; ' || echo 'No author-specific commits found')"
-    
-    # Comprehensive analysis for ALL commits by author
-    echo "detailed_commit_analysis=Complete commit history analysis for $author:"
-    all_commits=$(git log --author="$author" --pretty=format:'%H' 2>/dev/null || echo "")
-    if [ -n "$all_commits" ]; then
-        commit_count=$(echo "$all_commits" | wc -l | tr -d ' ')
-        echo "total_author_commits=Total commits by $author: $commit_count"
-        
-        # Complete git log with stats for ALL commits
-        all_log_stats=$(git log --author="$author" --stat --oneline 2>/dev/null | tr '\n' '|' || echo "No stats")
-        echo "author_all_stats=$all_log_stats"
-        
-        # All numstat data for precise line tracking
-        all_numstat=$(git log --author="$author" --numstat --pretty=format:'COMMIT:%h:%ad:%s' --date=short 2>/dev/null | tr '\n' '|' || echo "No numstat")
-        echo "author_numstat_all=$all_numstat"
-        
-        # Complete file change history
-        all_file_changes=$(git log --author="$author" --name-status --pretty=format:'COMMIT:%h:%ad' --date=short 2>/dev/null | tr '\n' '|' || echo "No file changes")
-        echo "author_file_patterns=$all_file_changes"
-        
-        # Aggregate statistics across ALL commits
-        total_additions=$(git log --author="$author" --pretty=tformat: --numstat 2>/dev/null | awk '{add+=$1} END {print add+0}')
-        total_deletions=$(git log --author="$author" --pretty=tformat: --numstat 2>/dev/null | awk '{del+=$2} END {print del+0}')
-        files_touched=$(git log --author="$author" --name-only --pretty=format: 2>/dev/null | grep -v '^$' | sort -u | wc -l | tr -d ' ')
-        echo "author_aggregate_stats=Total lines added: $total_additions | Total lines deleted: $total_deletions | Unique files modified: $files_touched"
-        
-        # Detailed git show analysis for recent commits
-        recent_show_details=""
-        recent_commits=$(git log --author="$author" -10 --pretty=format:'%H' 2>/dev/null)
-        for commit in $recent_commits; do
-            show_output=$(git show --stat --name-status $commit 2>/dev/null | tr '\n' '~' || echo "No show data")
-            recent_show_details="${recent_show_details}SHOW:$commit~$show_output;"
-        done
-        echo "author_show_details=$recent_show_details"
-        
-    else
-        echo "total_author_commits=No commits found for $author"
-        echo "author_all_stats=No statistics available"
-        echo "author_numstat_all=No numstat data available"
-        echo "author_file_patterns=No file patterns available"
-        echo "author_aggregate_stats=No aggregate statistics available"
-        echo "author_show_details=No show details available"
-    fi
-    
-    # Complete commit log with full details
-    echo "file_change_details=Complete commit log for $author:"
-    if [ -n "$all_commits" ]; then
-        complete_log=$(git log --author="$author" --pretty=format:'%h|%ad|%s|%an' --date=short --stat 2>/dev/null | tr '\n' ';' || echo "No complete log")
-        echo "author_file_details=$complete_log"
-    else
-        echo "author_file_details=No commit log available"
-    fi
-    
-    echo "per_author_files=Files primarily maintained by $author:"
-    echo "author_file_contributions=$(git ls-files 2>/dev/null | head -5 | tr '\n' ', ' || echo 'No files tracked')"
-else
-    echo "author_csv_data=Not a git repository"
-    echo "author_detailed_metrics=Not a git repository"
-    echo "recent_commit_details=Not a git repository"
-    echo "file_change_history=Not a git repository"
-    echo "file_modifications=Not a git repository"
-    echo "recent_file_changes=Not a git repository"
-    echo "code_evolution=Not a git repository"
-    echo "commit_timeline=Not a git repository"
-    echo "top_contributors=Not a git repository"
-    echo "collaboration_patterns=Not a git repository"
-    echo "author_activity_recent=Not a git repository"
-    echo "author_tenure=Not a git repository"
-    echo "productivity_metrics=Not a git repository"
-    echo "author_specializations=Not a git repository"
-    echo "change_hotspots=Not a git repository"
-    echo "per_author_commits=Not a git repository"
-    echo "author_commit_details=Not a git repository"
-    echo "detailed_commit_analysis=Not a git repository"
-    echo "total_author_commits=Not a git repository"
-    echo "author_all_stats=Not a git repository"
-    echo "author_numstat_all=No numstat data available"
-    echo "author_file_patterns=No file patterns available"
-    echo "author_aggregate_stats=No aggregate statistics available"
-    echo "author_show_details=No show details available"
-    echo "file_change_details=Not a git repository"
-    echo "author_file_details=No commit log available"
-    echo "per_author_files=Not a git repository"
-    echo "author_file_contributions=Not a git repository"
-fi
-      ]]></placeholder_generator>
-                </placeholder_generators>
-            </metadata>
-            <content><![CDATA[# Individual Developer Analysis & Personal Recommendations
-
-Provide personalized analysis and career development recommendations for each author based on their Git contribution patterns, technical specializations, and development behaviors.
-
-## Repository Overview
-{repo_info}
-
-## Detailed Author Metrics (CSV Format)
-```csv
-{author_csv_data}
-{author_detailed_metrics}
-```
-
-## Recent Commit Details (Last 10 Commits)
-{recent_commit_details}
-
-## File Change History with Line Statistics
-{file_change_history}
-
-## File Modification Analysis
-{file_modifications}
-
-## Recent File Changes (Last 5 Commits)
-{recent_file_changes}
-
-## Code Evolution Over Time
-{code_evolution}
-
-## Commit Timeline by Period
-{commit_timeline}
-
-## Top Contributors by Commits
-{top_contributors}
-
-## Collaboration Patterns & Merge Analysis
-{collaboration_patterns}
-
-## Recent Activity (Last 7 Days)
-{author_activity_recent}
-
-## Repository Timeline & Author Tenure
-{author_tenure}
-
-## Productivity Analysis & Metrics
-{productivity_metrics}
-
-## Technical Specializations by File Type
-{author_specializations}
-
-## Change Hotspots - Most Modified Files
-{change_hotspots}
-
-## Per-Author Detailed Commit History
-{per_author_commits}
-{author_commit_details}
-
-## Complete Commit History Analysis
-{detailed_commit_analysis}
-{total_author_commits}
-
-## All Commit Statistics (git log --stat)
-{author_all_stats}
-
-## Complete Line-by-Line Analysis (git log --numstat)
-{author_numstat_all}
-
-## All File Change Patterns (git log --name-status)
-{author_file_patterns}
-
-## Aggregate Author Statistics
-{author_aggregate_stats}
-
-## Detailed Recent Commits (git show)
-{author_show_details}
-
-## Complete Commit Log with Stats
-{file_change_details}
-{author_file_details}
-
-## Per-Author File Contributions
-{per_author_files}
-{author_file_contributions}
-
----
-
-## Analysis Instructions for AI
-
-Please analyze the current state of the Git repository and extract key performance indicators (KPIs) and status metrics for the codebase and each contributor. Focus on quantifiable and observable data from the latest repository snapshot — no time-series or historical trend analysis.
-
-### 1. **Repository Snapshot & Health**
-- Total commits, files tracked, lines of code
-- Current working directory status (staged, unstaged, untracked)
-- Active branches and remote sync status
-- Size and structure of the .git directory
-- Recent file change volume and churn
-
-### 2. **Per-Author KPIs**
-- Total commits per author
-- Lines added / removed per author
-- Most changed files by each author
-- First and last commit per author
-- Top file types modified
-- Bus factor indicators (files touched by only one author)
-- Commit patterns by hour/day (if present in current log)
-
-### 3. **Version Control Practices**
-- Use of merge commits, rebases, and stashes
-- Commit message quality (structure, format)
-- Tag usage and release metadata
-- Signed vs unsigned commits
-
-### 4. **Security & Collaboration**
-- GPG/PGP signing status of commits
-- Evidence of collaborative workflows (pair programming, PR merges)
-- Number of contributors and their distribution
-
-### 5. **Immediate Improvement Opportunities**
-- Git hygiene issues (large untracked files, excessive ignored content)
-- Opportunities for adding pre-commit hooks
-- Missing commit signing or review practices
-- Single-point-of-failure risks due to author concentration
-
----
-
-**Output Requirements:** Provide structured KPIs per author and repo-wide metrics. Use tables or summaries where useful. No need to extrapolate or predict trends — focus only on the current repo snapshot.]]></content>
-        </template>
-        <template>
-            <metadata>
-                <name>git-info</name>
-                <description/>
-                <created_at>2025-07-21T00:24:03.111101</created_at>
-                <updated_at>2025-07-21T13:59:18.633156</updated_at>
-                <placeholder_generators>
-                    <placeholder_generator language="bash"><![CDATA[
-set -euo pipefail
-MODE="full"
-
-for arg in "$@"; do
-  case "$arg" in
-    --core) MODE="core" ;;
-    --quality) MODE="quality" ;;
-    --devops) MODE="devops" ;;
-    --full) MODE="full" ;;
-  esac
-done
-
-safe_print() {
-  key="$1"
-  shift
-  output=$(eval "$@" 2>/dev/null || echo "")
-  echo "${key}=${output:-none}"
-}
-
-is_git_repo() {
-  git rev-parse --is-inside-work-tree >/dev/null 2>&1
-}
-
-safe_git_dir() {
-  git rev-parse --git-dir 2>/dev/null
-}
-
-if is_git_repo; then
-  safe_print "current_branch" "git branch --show-current"
-  safe_print "default_remote" "git remote get-url origin"
-
-  if git rev-parse HEAD >/dev/null 2>&1; then
-    safe_print "total_commits" "git rev-list --all --count"
-    safe_print "total_authors" "git shortlog -sne | wc -l | tr -d ' '"
-    safe_print "first_commit_date" "git log --reverse --date=short --pretty=format:'%ad' | head -1"
-    safe_print "latest_commit_date" "git log -1 --date=short --pretty=format:'%ad'"
-
-    top_authors_all=$(git shortlog -s -n | awk '{for (i=2; i<=NF; i++) printf $i " "; print ""}' | paste -s -d ',' -)
-    echo "top_authors_all=${top_authors_all:-none}"
-
-    safe_print "commits_last_7d" "git log --since='7 days ago' --oneline | wc -l | tr -d ' '"
-    safe_print "authors_last_7d" "git log --since='7 days ago' --pretty=format:'%an' | sort -u | wc -l | tr -d ' '"
-
-    top_authors_7d=$(git log --since='7 days ago' --pretty=format:'%an' | sort | uniq -c | sort -nr | awk '{for (i=2; i<=NF; i++) printf $i " "; print ""}' | paste -s -d ',' -)
-    echo "top_authors_7d=${top_authors_7d:-none}"
-
-    safe_print "files_changed_7d" "git log --since='7 days ago' --name-only --pretty=format: | grep -v '^$' | sort -u | wc -l | tr -d ' '"
-    safe_print "lines_added_7d" "git log --since='7 days ago' --numstat | awk '{if ($1 ~ /^[0-9]+$/) add+=$1} END {print add+0}'"
-    safe_print "lines_deleted_7d" "git log --since='7 days ago' --numstat | awk '{if ($2 ~ /^[0-9]+$/) del+=$2} END {print del+0}'"
-
-    most_active_files_7d=$(git log --since='7 days ago' --name-only --pretty=format: | grep -v '^$' | sort | uniq -c | sort -nr | awk '{print $2}' | head -5 | paste -s -d ',' -)
-    echo "most_active_files_7d=${most_active_files_7d:-none}"
-
-    safe_print "total_tags" "git tag | wc -l | tr -d ' '"
-    safe_print "last_tag" "git describe --tags --abbrev=0"
-    safe_print "merge_count" "git log --merges --oneline | wc -l | tr -d ' '"
-
-    first_commit_ts=$(git log --reverse --pretty=format:'%ct' | head -1)
-    now_ts=$(date +%s)
-    if [[ -n "$first_commit_ts" && "$first_commit_ts" =~ ^[0-9]+$ ]]; then
-      total_commits=$(git rev-list --all --count)
-      days=$(( (now_ts - first_commit_ts) / 86400 ))
-      if (( days > 0 )); then
-        avg=$(echo "scale=2; $total_commits / $days" | bc)
-      else
-        avg="$total_commits"
-      fi
-    else
-      avg="0.00"
-    fi
-    echo "avg_commits_per_day=${avg}"
-  fi
-
-  safe_print "uncommitted_changes" "git status --porcelain | wc -l | tr -d ' '"
-  safe_print "unstaged_files" "git diff --name-only | wc -l | tr -d ' '"
-  safe_print "staged_files" "git diff --cached --name-only | wc -l | tr -d ' '"
-  safe_print "untracked_files" "git ls-files --others --exclude-standard | wc -l | tr -d ' '"
-  safe_print "local_branches" "git branch | wc -l | tr -d ' '"
-  safe_print "remote_branches" "git branch -r | wc -l | tr -d ' '"
-  safe_print "rebase_events" "grep rebase .git/logs/HEAD | wc -l | tr -d ' '"
-
-  git_dir=$(safe_git_dir)
-  safe_print "git_dir_size" "du -sh "$git_dir" | cut -f1"
-  safe_print "git_object_count" "find "$git_dir/objects" -type f | wc -l | tr -d ' '"
-  safe_print "custom_git_hooks" "find "$git_dir/hooks" -type f ! -name '*.sample' | wc -l | tr -d ' '"
-fi
-      ]]></placeholder_generator>
-                </placeholder_generators>
-            </metadata>
-            <content><![CDATA[# Comprehensive Git Repository Analysis
-
-Please analyze this git repository data thoroughly and provide insights on development patterns, team dynamics, code quality indicators, and project health. Pay special attention to developer contributions, collaboration patterns, and potential areas for improvement.
-
-## Basic Information
-{git_basic_info}
-
-## Git Configuration
-{git_config}
-
-## Remote Status & Connectivity
-{remote_status}
-
-## Branch Management
-{branches}
-
-## Commit History Timeline
-{history_graph}
-
-## Author Statistics Overview
-{author_stats}
-
-## Development Activity Metrics
-{weekly_stats}
-
-## Most Active Files & Hotspots
-{active_files}
-
-## Repository Origin & History
-{first_commits}
-
-## Recent Development Activity
-{recent_commits}
-
-## Reference Log & Operations
-{reflog}
-
-## Merge Strategy & Integration
-{merge_commits}
-
-## Git Operations & Workflow
-{rebase_history}
-
-## Release Management (Tags)
-{tags}
-
-## Security & Code Signing
-{gpg_signatures}
-
-## Current Working State
-{working_status}
-
-## Stash Management
-{stash_content}
-
-## Codebase Statistics
-{file_stats}
-
-## Repository Infrastructure
-{git_directory}
-
-## Recent Changes & Velocity
-{recent_changes}
-
-## Branch Synchronization Status
-{branch_comparison}
-
-## Development Activity Patterns
-{activity_patterns}
-
-## Developer Contribution Analysis
-{developer_analysis}
-
-## Commit Distribution by Author
-{commit_breakdown}
-
-## Code Ownership & Expertise
-{file_ownership}
-
-## Development Velocity Metrics
-{development_velocity}
-
-## Team Collaboration Indicators
-{collaboration_metrics}
-
-## Work-Life Balance & Development Patterns
-{work_patterns}
-
-## Detailed Commit Statistics (ALL Commits)
-{detailed_commit_stats}
-
-## Complete Commit Statistics (git log --stat)
-{all_commit_stats}
-
-## File Changes Per Commit (ALL Commits)
-{file_changes_per_commit}
-
-## Complete Line-by-Line Analysis (git log --numstat)
-{all_numstat}
-
-## All File Change Patterns (git log --name-status)
-{all_file_changes}
-
-## Aggregate Repository Statistics
-{aggregate_stats}
-
-## File Modification Details (Last 5 Commits)
-{file_modification_details}
-
-## Change Impact Analysis
-{change_impact}
-
-## Recent Detailed Commit Log
-{recent_detailed_log}
-
-## File Type Distribution Analysis
-{file_type_analysis}
-
----
-
-Please analyze the current state of the Git repository and extract key performance indicators (KPIs) and status metrics for the codebase and each contributor. Focus on quantifiable and observable data from the latest repository snapshot — no time-series or historical trend analysis.
-
-1. Repository Snapshot & Health
-	•	Total commits, files tracked, lines of code
-	•	Current working directory status (staged, unstaged, untracked)
-	•	Active branches and remote sync status
-	•	Size and structure of the .git directory
-	•	Recent file change volume and churn
-
-2. Per-Author KPIs
-	•	Total commits per author
-	•	Lines added / removed per author
-	•	Most changed files by each author
-	•	First and last commit per author
-	•	Top file types modified
-	•	Bus factor indicators (files touched by only one author)
-	•	Commit patterns by hour/day (if present in current log)
-
-3. Version Control Practices
-	•	Use of merge commits, rebases, and stashes
-	•	Commit message quality (structure, format)
-	•	Tag usage and release metadata
-	•	Signed vs unsigned commits
-
-4. Security & Collaboration
-	•	GPG/PGP signing status of commits
-	•	Evidence of collaborative workflows (pair programming, PR merges)
-	•	Number of contributors and their distribution
-
-5. Immediate Improvement Opportunities
-	•	Git hygiene issues (large untracked files, excessive ignored content)
-	•	Opportunities for adding pre-commit hooks
-	•	Missing commit signing or review practices
-	•	Single-point-of-failure risks due to author concentration
-
-⸻
-
-Output: Provide structured KPIs per author and repo-wide metrics. Use tables or summaries where useful. No need to extrapolate or predict trends — focus only on the current repo snapshot.]]></content>
-        </template>
-        <template>
-            <metadata>
                 <name>project-info</name>
                 <description>Comprehensive snapshot of Git repository health, structure, activity, and risks
                 </description>
@@ -728,117 +155,124 @@ echo "custom_git_hooks=$custom_git_hooks"
                 </placeholder_generators>
             </metadata>
             <content><![CDATA[
-
-Use only the placeholders provided and generate a structured, comparative report that captures both historical and recent trends.
+## Project Audit Report
+**Date:** `$(date +%Y-%m-%d)`
 
 ---
-## Project
-date: `$(date +%Y-%m-%d)`
+
 ## 🧾 General Repository Info
 
-- Branch: `{current_branch}`
-- Remote: `{default_remote}`
-- First Commit: `{first_commit_date}`
-- Latest Commit: `{latest_commit_date}`
-- Latest Tag: `{last_tag}`
-- Total Tags: `{total_tags}`
-- Local Branches: `{local_branches}`
-- Remote Branches: `{remote_branches}`
-- Merges: `{merge_count}`
-- Rebase Events: `{rebase_events}`
+- **Branch:** `{current_branch}`
+- **Remote:** `{default_remote}`
+- **First Commit:** `{first_commit_date}`
+- **Latest Commit:** `{latest_commit_date}`
+- **Latest Tag:** `{last_tag}`
+- **Total Tags:** `{total_tags}`
+- **Local Branches:** `{local_branches}`
+- **Remote Branches:** `{remote_branches}`
+- **Merges:** `{merge_count}`
+- **Rebase Events:** `{rebase_events}`
 
 ---
 
 ## 📈 Historical Statistics (All Time)
 
-| Metric | Value |
-|--------|-------|
-| Total Commits | `{total_commits}` |
-| Total Authors | `{total_authors}` |
-| Top Authors | `{top_authors_all}` |
-| Average Commits per Day | `{avg_commits_per_day}` |
-| Git Folder Size | `{git_dir_size}` |
-| Git Object Count | `{git_object_count}` |
-| Custom Git Hooks | `{custom_git_hooks}` |
+| Metric                   | Value                |
+|--------------------------|----------------------|
+| Total Commits            | `{total_commits}`    |
+| Total Authors            | `{total_authors}`    |
+| Top Authors              | `{top_authors_all}`  |
+| Avg. Commits per Day     | `{avg_commits_per_day}` |
+| Git Folder Size (MB)     | `{git_dir_size}`     |
+| Git Object Count         | `{git_object_count}` |
+| Custom Git Hooks Present | `{custom_git_hooks}` |
 
-**Derived Metrics**
-- `git_bloat_ratio` = `{git_dir_size}` / `{total_commits}`
+**Derived Metric**
+- `git_bloat_ratio = {git_dir_size} / {total_commits}`
 
 ---
 
 ## 📊 Recent Activity (Last 7 Days)
 
-| Metric | Value |
-|--------|-------|
-| Commits | `{commits_last_7d}` |
-| Authors | `{authors_last_7d}` |
-| Top Authors | `{top_authors_7d}` |
-| Files Changed | `{files_changed_7d}` |
-| Lines Added | `{lines_added_7d}` |
-| Lines Deleted | `{lines_deleted_7d}` |
-| Most Active Files | `{most_active_files_7d}` |
+| Metric           | Value                  |
+|------------------|------------------------|
+| Commits          | `{commits_last_7d}`    |
+| Authors          | `{authors_last_7d}`    |
+| Top Authors      | `{top_authors_7d}`     |
+| Files Changed    | `{files_changed_7d}`   |
+| Lines Added      | `{lines_added_7d}`     |
+| Lines Deleted    | `{lines_deleted_7d}`   |
+| Most Active Files| `{most_active_files_7d}` |
 
 **Derived Metrics**
-- `commit_velocity_7d` = `{commits_last_7d}` / 7
-- `author_participation_rate_7d` = `{authors_last_7d}` / `{total_authors}`
-- `churn_ratio_7d` = `{lines_deleted_7d}` / `{lines_added_7d}`
-- `change_density_7d` = (`{lines_added_7d}` + `{lines_deleted_7d}`) / `{files_changed_7d}`
-- `merge_vs_rebase_ratio` = `{merge_count}` / (`{merge_count}` + `{rebase_events}`)
+- `commit_velocity_7d = {commits_last_7d} / 7`
+- `author_participation_rate_7d = {authors_last_7d} / {total_authors}`
+- `churn_ratio_7d = {lines_deleted_7d} / {lines_added_7d}`
+- `change_density_7d = ({lines_added_7d} + {lines_deleted_7d}) / {files_changed_7d}`
+- `merge_vs_rebase_ratio = {merge_count} / ({merge_count} + {rebase_events})`
 
 ---
 
 ## 📐 Repository Health Metrics (Lifetime KPIs)
 
-| Metric | Formula / Expression | Why it Matters |
-|--------|------------------------|----------------|
-| Commits per Author | `{total_commits} ÷ {total_authors}` | Gauges average individual contribution |
-| Commits per Tag | `{total_commits} ÷ {total_tags}` | Shows how often you stabilize/release |
-| Branches per Author | `({local_branches} + {remote_branches}) ÷ {total_authors}` | Indicates branching complexity relative to team size |
-| Merge-Commit Ratio | `{merge_count} ÷ {total_commits}` | % of activity coming from merges (vs. straight commits) |
-| Rebase-Commit Ratio | `{rebase_events} ÷ {total_commits}` | % of activity coming from rebases (vs. straight commits) |
-| Repo Age (Days) | `days_between({first_commit_date}, {latest_commit_date})` | Total lifespan in days |
-| Tags per Year | `{total_tags} ÷ ( days_between({first_commit_date},{latest_commit_date}) ÷ 365 )` | Release cadence on an annualized basis |
-| Git Objects per Commit | `{git_object_count} ÷ {total_commits}` | Reflects repository complexity growth per commit |
-| Average Tags per Commit | `{total_tags} ÷ {total_commits}` | How frequently you mark milestones |
-| Branch Proliferation | `({local_branches} + {remote_branches}) ÷ ({merge_count} + {rebase_events})` | Branch creation vs. integration events |
+| Metric                        | Formula / Expression                                       | Why it Matters |
+|------------------------------|-------------------------------------------------------------|----------------|
+| Commits per Author           | `{total_commits} ÷ {total_authors}`                        | Team balance |
+| Commits per Tag              | `{total_commits} ÷ {total_tags}`                           | Release frequency |
+| Branches per Author          | `({local_branches} + {remote_branches}) ÷ {total_authors}` | Complexity |
+| Merge Commit Ratio           | `{merge_count} ÷ {total_commits}`                          | Integration style |
+| Rebase Commit Ratio          | `{rebase_events} ÷ {total_commits}`                        | Cleanup behavior |
+| Repo Age (Days)              | `days_between({first_commit_date}, {latest_commit_date})` | Lifespan |
+| Tags per Year                | `{total_tags} ÷ (repo_age_days / 365)`                     | Tag cadence |
+| Git Objects per Commit       | `{git_object_count} ÷ {total_commits}`                     | Growth per change |
+| Avg. Tags per Commit         | `{total_tags} ÷ {total_commits}`                           | Versioning discipline |
+| Branch Proliferation Index   | `({local_branches} + {remote_branches}) ÷ ({merge_count} + {rebase_events})` | Over-branching |
 
 ---
 
 ## 🧼 Git Working State
 
-- Uncommitted Changes: `{uncommitted_changes}`
-- Staged Files: `{staged_files}`
-- Unstaged Files: `{unstaged_files}`
-- Untracked Files: `{untracked_files}`
+- **Uncommitted Changes:** `{uncommitted_changes}`
+- **Staged Files:** `{staged_files}`
+- **Unstaged Files:** `{unstaged_files}`
+- **Untracked Files:** `{untracked_files}`
 
 ---
 
 ## 🎯 AI Task Instructions
 
-Please analyze the repository and provide a concise report covering:
+You are a senior project auditor. Using only the values from the provided placeholders (no guesses, no assumptions), generate a concise, structured report answering the following:
 
-1. **Project Pulse**
-   - Is the project active recently?
-   - How fast is development progressing historically and recently?
+### 1. **Project Pulse**
+- Is the repository active in the last 7 days?
+- How does current commit velocity compare to historical averages?
 
-2. **Team & Collaboration**
-   - Is there active team involvement?
-   - Are there signs of single-author dominance?
+### 2. **Team & Collaboration**
+- Is activity spread across multiple contributors?
+- Are there dominant authors?
+- Are merges and rebases used consistently?
 
-3. **Code Hygiene**
-   - Is the working tree clean?
-   - Any signs of git bloat or messiness?
+### 3. **Code Hygiene & Maintenance**
+- Are there any uncommitted or messy changes in the working tree?
+- Is the `.git` folder size reasonable for the number of commits (`git_bloat_ratio`)?
+- Are custom git hooks used?
 
-4. **Versioning Discipline**
-   - Use of tags, merges, rebases?
-   - Use of git hooks?
+### 4. **Versioning & Delivery**
+- How frequently are tags/releases used?
+- Are tags used consistently per commit or per year?
 
-5. **Risks & Recommendations**
-   - Highlight any red flags
-   - Recommend actions to improve health, hygiene, or collaboration
+### 5. **Repository Structure & Risk**
+- Does the repo show signs of over-branching?
+- What is the age of the repository and how has growth evolved (object count per commit)?
 
-Use tables or bullet points. Avoid speculation.
+### 6. **Red Flags & Recommendations**
+- If any metrics indicate potential risk or poor hygiene, list them clearly.
+- Suggest 1–3 actions for improving team workflow, hygiene, or structure based strictly on data.
 
+**Presentation:**
+- Use only tables, bullet points, and clear metrics.
+- No hallucinated or invented information.
+- No filler text or speculation — only evidence-backed conclusions.
 ]]></content>
         </template>
     </templates>
