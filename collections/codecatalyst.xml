@@ -733,7 +733,7 @@ Use only the placeholders provided and generate a structured, comparative report
 
 ---
 
-## General Repository Info
+## 🧾 General Repository Info
 
 - Branch: `{current_branch}`
 - Remote: `{default_remote}`
@@ -748,7 +748,7 @@ Use only the placeholders provided and generate a structured, comparative report
 
 ---
 
-## Historical Statistics (All Time)
+## 📈 Historical Statistics (All Time)
 
 | Metric | Value |
 |--------|-------|
@@ -765,7 +765,7 @@ Use only the placeholders provided and generate a structured, comparative report
 
 ---
 
-## Recent Activity (Last 7 Days)
+## 📊 Recent Activity (Last 7 Days)
 
 | Metric | Value |
 |--------|-------|
@@ -786,7 +786,7 @@ Use only the placeholders provided and generate a structured, comparative report
 
 ---
 
-##  Repository Health Metrics (Lifetime KPIs)
+## 📐 Repository Health Metrics (Lifetime KPIs)
 
 | Metric | Formula / Expression | Why it Matters |
 |--------|------------------------|----------------|
@@ -803,7 +803,7 @@ Use only the placeholders provided and generate a structured, comparative report
 
 ---
 
-## Git Working State
+## 🧼 Git Working State
 
 - Uncommitted Changes: `{uncommitted_changes}`
 - Staged Files: `{staged_files}`
@@ -812,7 +812,7 @@ Use only the placeholders provided and generate a structured, comparative report
 
 ---
 
-## AI Task Instructions
+## 🎯 AI Task Instructions
 
 Please analyze the repository and provide a concise report covering:
 
