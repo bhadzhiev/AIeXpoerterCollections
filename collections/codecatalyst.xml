@@ -732,7 +732,8 @@ echo "custom_git_hooks=$custom_git_hooks"
 Use only the placeholders provided and generate a structured, comparative report that captures both historical and recent trends.
 
 ---
-
+## Project
+date: `$(date +%Y-%m-%d)`
 ## 🧾 General Repository Info
 
 - Branch: `{current_branch}`
