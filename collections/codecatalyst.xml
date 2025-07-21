@@ -3,9 +3,9 @@
     <metadata>
         <name>codecatalyst</name>
         <description>AWS CodeCatalyst development and CI/CD automation templates</description>
-        <system_prompt>{"role": "system", "content": "You are an AWS CodeCatalyst expert specializing in modern CI/CD
+        <system_prompt>`{"role": "system", "content": "You are an AWS CodeCatalyst expert specializing in modern CI/CD
             pipelines, infrastructure as code, and development workflows. Focus on best practices, security, and
-            efficient automation."}
+            efficient automation."}`
         </system_prompt>
         <author/>
         <created_at>2025-07-20T18:29:50.345447</created_at>
@@ -71,18 +71,18 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
         latest_commit_date=$(git log -1 --date=short --pretty=format:'%ad' 2>/dev/null || echo "unknown")
         
         # Top authors
-        top_authors_all=$(git shortlog -s -n 2>/dev/null | awk '{for (i=2; i<=NF; i++) printf $i " "; print ""}' | paste -s -d ',' - | sed 's/,$//' || echo "unknown")
+        top_authors_all=$(git shortlog -s -n 2>/dev/null | awk '`{for (i=2; i<=NF; i++) printf $i " "; print ""}`' | paste -s -d ',' - | sed 's/,$//' || echo "unknown")
         
         # Recent activity
         commits_last_7d=$(git log --since='7 days ago' --oneline 2>/dev/null | wc -l | tr -d ' ' || echo "0")
         authors_last_7d=$(git log --since='7 days ago' --pretty=format:'%an' 2>/dev/null | sort -u | wc -l | tr -d ' ' || echo "0")
-        top_authors_7d=$(git log --since='7 days ago' --pretty=format:'%an' 2>/dev/null | sort | uniq -c | sort -nr | awk '{for (i=2; i<=NF; i++) printf $i " "; print ""}' | paste -s -d ',' - | sed 's/,$//' || echo "unknown")
+        top_authors_7d=$(git log --since='7 days ago' --pretty=format:'%an' 2>/dev/null | sort | uniq -c | sort -nr | awk '`{for (i=2; i<=NF; i++) printf $i " "; print ""}`' | paste -s -d ',' - | sed 's/,$//' || echo "unknown")
         
         # File activity
         files_changed_7d=$(git log --since='7 days ago' --name-only --pretty=format: 2>/dev/null | grep -v '^$' | sort -u | wc -l | tr -d ' ' || echo "0")
-        lines_added_7d=$(git log --since='7 days ago' --numstat 2>/dev/null | awk '{if ($1 ~ /^[0-9]+$/) add+=$1} END {print add+0}' || echo "0")
-        lines_deleted_7d=$(git log --since='7 days ago' --numstat 2>/dev/null | awk '{if ($2 ~ /^[0-9]+$/) del+=$2} END {print del+0}' || echo "0")
-        most_active_files_7d=$(git log --since='7 days ago' --name-only --pretty=format: 2>/dev/null | grep -v '^$' | sort | uniq -c | sort -nr | awk '{print $2}' | head -5 | paste -s -d ',' - || echo "unknown")
+        lines_added_7d=$(git log --since='7 days ago' --numstat 2>/dev/null | awk '`{if ($1 ~ /^[0-9]+$/) add+=$1}` END `{print add+0}`' || echo "0")
+        lines_deleted_7d=$(git log --since='7 days ago' --numstat 2>/dev/null | awk '`{if ($2 ~ /^[0-9]+$/) del+=$2}` END `{print del+0}`' || echo "0")
+        most_active_files_7d=$(git log --since='7 days ago' --name-only --pretty=format: 2>/dev/null | grep -v '^$' | sort | uniq -c | sort -nr | awk '`{print $2}`' | head -5 | paste -s -d ',' - || echo "unknown")
         
         # Tags and merges
         total_tags=$(git tag 2>/dev/null | wc -l | tr -d ' ' || echo "0")
@@ -95,7 +95,7 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
             now_ts=$(date +%s)
             days=$(( (now_ts - first_commit_ts) / 86400 ))
             if [ $days -gt 0 ]; then
-                avg_commits_per_day=$(awk "BEGIN {printf \"%.2f\", $total_commits / $days}")
+                avg_commits_per_day=$(awk "BEGIN `{printf \"%.2f\", $total_commits / $days}`")
             else
                 avg_commits_per_day="$total_commits"
             fi
@@ -155,124 +155,105 @@ echo "custom_git_hooks=$custom_git_hooks"
                 </placeholder_generators>
             </metadata>
             <content><![CDATA[
-## Project Audit Report
+## Project Report
+** Project Name **
 **Date:** `$(date +%Y-%m-%d)`
-
----
 
 ## 🧾 General Repository Info
 
-- **Branch:** `{current_branch}`
-- **Remote:** `{default_remote}`
-- **First Commit:** `{first_commit_date}`
-- **Latest Commit:** `{latest_commit_date}`
-- **Latest Tag:** `{last_tag}`
-- **Total Tags:** `{total_tags}`
-- **Local Branches:** `{local_branches}`
-- **Remote Branches:** `{remote_branches}`
-- **Merges:** `{merge_count}`
-- **Rebase Events:** `{rebase_events}`
+| Field                | Value                 |
+|----------------------|-----------------------|
+| Branch               | `{current_branch}`    |
+| Remote               | `{default_remote}`    |
+| First Commit Date    | `{first_commit_date}` |
+| Latest Commit Date   | `{latest_commit_date}`|
+| Total Commits        | `{total_commits}`     |
+| Total Authors        | `{total_authors}`     |
+| Total Tags           | `{total_tags}`        |
+| Last Tag             | `{last_tag}`          |
+| Local Branches       | `{local_branches}`    |
+| Remote Branches      | `{remote_branches}`   |
+| Merge Commits        | `{merge_count}`       |
+| Rebase Events        | `{rebase_events}`     |
+| Git Folder Size      | `{git_dir_size}`      |
+| Git Object Count     | `{git_object_count}`  |
+| Custom Git Hooks     | `{custom_git_hooks}`  |
 
 ---
 
-## 📈 Historical Statistics (All Time)
+## 📈 Derived Lifetime Metrics
 
-| Metric                   | Value                |
-|--------------------------|----------------------|
-| Total Commits            | `{total_commits}`    |
-| Total Authors            | `{total_authors}`    |
-| Top Authors              | `{top_authors_all}`  |
-| Avg. Commits per Day     | `{avg_commits_per_day}` |
-| Git Folder Size (MB)     | `{git_dir_size}`     |
-| Git Object Count         | `{git_object_count}` |
-| Custom Git Hooks Present | `{custom_git_hooks}` |
-
-**Derived Metric**
-- `git_bloat_ratio = {git_dir_size} / {total_commits}`
-
----
-
-## 📊 Recent Activity (Last 7 Days)
-
-| Metric           | Value                  |
-|------------------|------------------------|
-| Commits          | `{commits_last_7d}`    |
-| Authors          | `{authors_last_7d}`    |
-| Top Authors      | `{top_authors_7d}`     |
-| Files Changed    | `{files_changed_7d}`   |
-| Lines Added      | `{lines_added_7d}`     |
-| Lines Deleted    | `{lines_deleted_7d}`   |
-| Most Active Files| `{most_active_files_7d}` |
-
-**Derived Metrics**
-- `commit_velocity_7d = {commits_last_7d} / 7`
-- `author_participation_rate_7d = {authors_last_7d} / {total_authors}`
-- `churn_ratio_7d = {lines_deleted_7d} / {lines_added_7d}`
-- `change_density_7d = ({lines_added_7d} + {lines_deleted_7d}) / {files_changed_7d}`
-- `merge_vs_rebase_ratio = {merge_count} / ({merge_count} + {rebase_events})`
+| Metric                        | Formula                                                       | Result |
+|------------------------------|----------------------------------------------------------------|--------|
+| Commits per Author           | `{total_commits}` ÷ `{total_authors}`                             |        |
+| Commits per Tag              | `{total_commits}` ÷ `{total_tags}`                                |        |
+| Branches per Author          | (`{local_branches}` + `{remote_branches}`) ÷ `{total_authors}`      |        |
+| Merge Commit Ratio           | `{merge_count}` ÷ `{total_commits}`                               |        |
+| Rebase Commit Ratio          | `{rebase_events}` ÷ `{total_commits}`                             |        |
+| Repo Age (days)              | days_between(`{first_commit_date}`, `{latest_commit_date}`)       |        |
+| Tags per Year                | `{total_tags}` ÷ (repo_age_days ÷ 365)                          |        |
+| Git Objects per Commit       | `{git_object_count}` ÷ `{total_commits}`                          |        |
+| Average Tags per Commit      | `{total_tags}` ÷ `{total_commits}`                                |        |
+| Branch Proliferation Index   | (`{local_branches}` + `{remote_branches}`) ÷ (`{merge_count}` + `{rebase_events}`) | |
+| Git Bloat Ratio              | `{git_dir_size}` ÷ `{total_commits}`                              |        |
 
 ---
 
-## 📐 Repository Health Metrics (Lifetime KPIs)
+## 📊 Recent 7-Day Activity
 
-| Metric                        | Formula / Expression                                       | Why it Matters |
-|------------------------------|-------------------------------------------------------------|----------------|
-| Commits per Author           | `{total_commits} ÷ {total_authors}`                        | Team balance |
-| Commits per Tag              | `{total_commits} ÷ {total_tags}`                           | Release frequency |
-| Branches per Author          | `({local_branches} + {remote_branches}) ÷ {total_authors}` | Complexity |
-| Merge Commit Ratio           | `{merge_count} ÷ {total_commits}`                          | Integration style |
-| Rebase Commit Ratio          | `{rebase_events} ÷ {total_commits}`                        | Cleanup behavior |
-| Repo Age (Days)              | `days_between({first_commit_date}, {latest_commit_date})` | Lifespan |
-| Tags per Year                | `{total_tags} ÷ (repo_age_days / 365)`                     | Tag cadence |
-| Git Objects per Commit       | `{git_object_count} ÷ {total_commits}`                     | Growth per change |
-| Avg. Tags per Commit         | `{total_tags} ÷ {total_commits}`                           | Versioning discipline |
-| Branch Proliferation Index   | `({local_branches} + {remote_branches}) ÷ ({merge_count} + {rebase_events})` | Over-branching |
+| Metric             | Value                   |
+|--------------------|-------------------------|
+| Commits            | `{commits_last_7d}`       |
+| Authors            | `{authors_last_7d}`       |
+| Top Authors        | `{top_authors_7d}`        |
+| Files Changed      | `{files_changed_7d}`      |
+| Lines Added        | `{lines_added_7d}`        |
+| Lines Deleted      | `{lines_deleted_7d}`      |
+| Most Active Files  | `{most_active_files_7d}`  |
 
 ---
 
-## 🧼 Git Working State
+## 📉 Derived Recent Metrics (7 Days)
 
-- **Uncommitted Changes:** `{uncommitted_changes}`
-- **Staged Files:** `{staged_files}`
-- **Unstaged Files:** `{unstaged_files}`
-- **Untracked Files:** `{untracked_files}`
+| Metric                         | Formula                                                      | Result |
+|--------------------------------|---------------------------------------------------------------|--------|
+| Commit Velocity                | `{commits_last_7d}` ÷ 7                                        |        |
+| Author Participation Rate      | `{authors_last_7d}` ÷ `{total_authors}`                          |        |
+| Churn Ratio                    | `{lines_deleted_7d}` ÷ `{lines_added_7d}`                        |        |
+| Change Density                 | (`{lines_added_7d}` + `{lines_deleted_7d}`) ÷ `{files_changed_7d}` |        |
+| Merge vs Rebase Ratio          | `{merge_count}` ÷ (`{merge_count}` + `{rebase_events}`)            |        |
 
 ---
 
-## 🎯 AI Task Instructions
+## 🧼 Git Working Tree Status
 
-You are a senior project auditor. Using only the values from the provided placeholders (no guesses, no assumptions), generate a concise, structured report answering the following:
+| Metric              | Value               |
+|---------------------|---------------------|
+| Uncommitted Changes | `{uncommitted_changes}` |
+| Staged Files        | `{staged_files}`        |
+| Unstaged Files      | `{unstaged_files}`      |
+| Untracked Files     | `{untracked_files}`     |
 
-### 1. **Project Pulse**
-- Is the repository active in the last 7 days?
-- How does current commit velocity compare to historical averages?
+---
 
-### 2. **Team & Collaboration**
-- Is activity spread across multiple contributors?
-- Are there dominant authors?
-- Are merges and rebases used consistently?
+## 🧮 Calculation Hints
 
-### 3. **Code Hygiene & Maintenance**
-- Are there any uncommitted or messy changes in the working tree?
-- Is the `.git` folder size reasonable for the number of commits (`git_bloat_ratio`)?
-- Are custom git hooks used?
+- Use days_between(`{first_commit_date}`, `{latest_commit_date}`) to get repo age in days.
+- If `{git_dir_size}` is in human-readable units (e.g. 1.2M, 480K), convert to float MB before division.
+- Never guess if input is missing, zero, or unknown — just leave the "Result" cell empty.
 
-### 4. **Versioning & Delivery**
-- How frequently are tags/releases used?
-- Are tags used consistently per commit or per year?
+---
 
-### 5. **Repository Structure & Risk**
-- Does the repo show signs of over-branching?
-- What is the age of the repository and how has growth evolved (object count per commit)?
+## 🧠 Analyst Instructions
 
-### 6. **Red Flags & Recommendations**
-- If any metrics indicate potential risk or poor hygiene, list them clearly.
-- Suggest 1–3 actions for improving team workflow, hygiene, or structure based strictly on data.
+Once all placeholders in ``{}`` are populated:
 
-**Presentation:**
-- Use only tables, bullet points, and clear metrics.
-- No hallucinated or invented information.
-- No filler text or speculation — only evidence-backed conclusions.
+1. Summarize project activity and health.
+2. Identify key findings: low participation, merge-only workflow, high churn, excessive .git size.
+3. Recommend 1–3 actions to improve based only on real metrics — no assumptions.
+4. Use bullets or short paragraphs. Stay objective.
+
+---
 ]]></content>
         </template>
     </templates>
