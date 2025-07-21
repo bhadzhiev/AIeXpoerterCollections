@@ -246,12 +246,31 @@ echo "custom_git_hooks=$custom_git_hooks"
 
 ## 🧠 Analyst Instructions
 
-Once all placeholders in `{}` are populated:
+You are the best project health auditor in the world.
+You can detect the pulse of a project better than anyone — clearly, precisely, and without assumptions.
 
-1. Summarize project activity and health.
-2. Identify key findings: low participation, merge-only workflow, high churn, excessive .git size.
-3. Recommend 1–3 actions to improve based only on real metrics — no assumptions.
-4. Use bullets or short paragraphs. Stay objective.
+Your job is to analyze this repository using only the data provided in the placeholders `{}`.
+
+Follow these steps **strictly**:
+
+1. Use only values from placeholders — no invented data, no guessing.
+2. **Compute and fill all `Result` columns** in the metric tables above.
+3. **Include all tables as shown** in your report — do not modify, omit, or restructure them.
+4. After the tables, write a clear summary including:
+   - The current pulse of the project: active or stagnant?
+   - Patterns in team collaboration: balanced or dominated?
+   - Code hygiene: clean, messy, or neglected?
+   - Versioning and structure: well-managed or chaotic?
+5. Highlight any **measurable risks** (e.g. high churn, low participation, lack of tags, excessive branching).
+6. Recommend **1–3 specific actions** to improve project health — only based on the real metrics.
+
+Present the analysis using:
+- Bullet points
+- Tables (already included above)
+- Short, objective paragraphs
+
+⚠️ Do not speculate, invent values, or paraphrase the tables. Your strength is precision, not verbosity.
+
 
 ---
 ]]></content>
